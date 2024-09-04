@@ -1,8 +1,8 @@
-import json
+import xml.etree.ElementTree as ET
 
 def calcular_faturamento(dados):
-    # Extrai os valores de faturamento da lista de dicionários
-    faturamento = [dia['valor'] for dia in dados]
+    # Extrai os valores de faturamento da lista de elementos <row>
+    faturamento = [float(row.find('valor').text) for row in dados.findall('row')]
 
     if not faturamento:
         print("Nenhum dado de faturamento encontrado.")
@@ -26,24 +26,19 @@ def calcular_faturamento(dados):
     print(f"Número de dias com faturamento acima da média: {dias_acima_media}")
 
 def main():
-    # Lê o conteúdo do arquivo JSON
     try:
-        with open('dados.json', 'r') as file:
-            content = file.read()
-            if not content.strip():
-                print("Arquivo 'dados.json' está vazio.")
-                return
-            print("Conteúdo do arquivo JSON:")
-            print(content)
-            dados = json.loads(content)
-    except FileNotFoundError:
-        print("Arquivo 'dados.json' não encontrado.")
-        return
-    except json.JSONDecodeError as e:
-        print(f"Erro ao decodificar o arquivo JSON: {e}")
-        return
+        # Carrega o arquivo XML
+        tree = ET.parse('dados2.xml')
+        root = tree.getroot()
 
-    calcular_faturamento(dados)
+        calcular_faturamento(root)
+    
+    except FileNotFoundError:
+        print("Arquivo 'dados.xml' não encontrado.")
+        return
+    except ET.ParseError as e:
+        print(f"Erro ao decodificar o arquivo XML: {e}")
+        return
 
 if __name__ == "__main__":
     main()
